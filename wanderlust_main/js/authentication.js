@@ -125,6 +125,10 @@ if (registerForm) {
                 createdAt: new Date(),
             });
 
+            // Firebase signs the user in automatically after registration,
+            // so we sign them back out to force a manual login.
+            await signOut(auth);
+
             alert("Registration successful! Please login.");
             window.location.href = "login.html";
 
@@ -213,4 +217,4 @@ if (logoutBtn) {
 // ==================== INIT CAROUSEL ====================
 document.addEventListener('DOMContentLoaded', () => {
     initCarousel();
-}); 
+});
