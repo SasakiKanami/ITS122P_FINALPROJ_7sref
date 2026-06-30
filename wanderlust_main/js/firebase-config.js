@@ -1,6 +1,6 @@
 // Firebase CDN imports (no npm needed)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signOut, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -16,6 +16,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+// Set session-only persistence - user logs out when browser/tab closes
+// This provides better security: session doesn't persist after browser close
+auth.setPersistence(browserSessionPersistence).catch((error) => {
+  console.warn("Firebase persistence setting failed:", error);
+});
+
 const db = getFirestore(app);
 
 // Export so other JS files can use them

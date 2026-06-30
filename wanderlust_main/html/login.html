@@ -64,6 +64,11 @@
         <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
     </footer>
 
+    <script type="module">
+        import { requireGuest } from "../js/auth-guard.js";
+        await requireGuest();
+    </script>
+
     <!-- Firebase Auth Script -->
     <script type="module" src="../js/authentication.js"></script>
 </body>

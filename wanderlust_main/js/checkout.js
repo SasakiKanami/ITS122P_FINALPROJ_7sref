@@ -655,30 +655,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        if (!loadCheckoutInitialized) {
-            loadCheckoutInitialized = true;
-            const placeOrderForm = document.querySelector('.checkout-form form');
-            if (placeOrderForm) {
-                placeOrderForm.addEventListener('submit', placeOrder);
-            }
-        }
-        
-        const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        currentUserProfile = userDocSnap.exists() ? userDocSnap.data() : null;
-
-        if (currentUserProfile?.firstName || currentUserProfile?.lastName) {
-            document.getElementById('firstName').value = currentUserProfile.firstName || '';
-            document.getElementById('middleName').value = currentUserProfile.middleName || '';
-            document.getElementById('lastName').value = currentUserProfile.lastName || '';
-        }
-        if (currentUserProfile?.contact) {
-            initIntlTelInput(currentUserProfile.contact);
-        }
-
-        loadPaymentMethods();
-        loadSavedAddresses();
-        loadCartItems();
+    if (!user) {
+        window.location.replace('login.html');
+        return;
     }
+
+    if (!loadCheckoutInitialized) {
+        loadCheckoutInitialized = true;
+        const placeOrderForm = document.querySelector('.checkout-form form');
+        if (placeOrderForm) {
+            placeOrderForm.addEventListener('submit', placeOrder);
+        }
+    }
+    
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    currentUserProfile = userDocSnap.exists() ? userDocSnap.data() : null;
+
+    if (currentUserProfile?.firstName || currentUserProfile?.lastName) {
+        document.getElementById('firstName').value = currentUserProfile.firstName || '';
+        document.getElementById('middleName').value = currentUserProfile.middleName || '';
+        document.getElementById('lastName').value = currentUserProfile.lastName || '';
+    }
+    if (currentUserProfile?.contact) {
+        initIntlTelInput(currentUserProfile.contact);
+    }
+
+    loadPaymentMethods();
+    loadSavedAddresses();
+    loadCartItems();
 });

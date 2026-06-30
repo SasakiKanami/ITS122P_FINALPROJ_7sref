@@ -5,7 +5,9 @@ import {
     query,
     where,
     onSnapshot,
-    orderBy
+    orderBy,
+    updateDoc,
+    doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -70,9 +72,36 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+async function uploadPaymentProof(orderId, file) {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    try {
+        const proofImage = await readFileAsDataURL(file);
+        await updateDoc(doc(db, "orders", orderId), {
+            paymentProof: proofImage
+        });
+        showMessage("Proof uploaded successfully!", "success");
+        setTimeout(hideMessage, 3000);
+    } catch (error) {
+        console.error("Error uploading proof:", error);
+        showMessage("Failed to upload proof: " + error.message, "error");
+    }
+}
+
 function renderOrderCard(order) {
     const statusClass = getStatusClass(order.status);
     const statusLabel = getStatusLabel(order.status);
+    const canEditProof = order.status === 'pending';
 
     const itemsList = (order.items || []).map(item => `
         <div class="order-item">
@@ -88,6 +117,21 @@ function renderOrderCard(order) {
         <div class="proof-section">
             <strong>Proof of Payment:</strong>
             <img src="${order.paymentProof}" class="proof-img" title="Click to enlarge" onclick="window.openProofModal && window.openProofModal('${order.paymentProof.replace(/'/g, "\\'")}')" />
+        </div>
+    ` : '';
+
+    const adminCommentSection = order.adminComment ? `
+        <div class="admin-comment-section">
+            <strong>Admin Note:</strong>
+            <p class="admin-comment-text">${escapeHtml(order.adminComment)}</p>
+        </div>
+    ` : '';
+
+    const uploadProofButton = canEditProof ? `
+        <div class="proof-upload-section">
+            <button class="upload-proof-btn" onclick="window.showUploadProofModal && window.showUploadProofModal('${order.id}')">
+                ${order.paymentProof ? 'Replace Proof of Payment' : 'Upload Proof of Payment'}
+            </button>
         </div>
     ` : '';
 
@@ -113,6 +157,8 @@ function renderOrderCard(order) {
                 <p><strong>Delivery Address:</strong> ${order.address || 'N/A'}</p>
                 <p><strong>Contact:</strong> ${order.contact || 'N/A'}</p>
                 ${proofSection}
+                ${adminCommentSection}
+                ${uploadProofButton}
                 ${order.trackingInfo ? `
                     <div class="tracking-info-section">
                         <strong>Delivery Tracking:</strong>
@@ -249,6 +295,39 @@ function loadOrders() {
     });
 }
 
+// Upload proof modal functions
+let currentOrderIdForUpload = null;
+
+window.showUploadProofModal = function(orderId) {
+    currentOrderIdForUpload = orderId;
+    const modal = document.getElementById('uploadProofModal');
+    const fileInput = document.getElementById('proofUploadInput');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+    if (fileInput) {
+        fileInput.value = '';
+    }
+};
+
+window.closeUploadProofModal = function() {
+    const modal = document.getElementById('uploadProofModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    currentOrderIdForUpload = null;
+};
+
+window.submitPaymentProof = async function() {
+    const fileInput = document.getElementById('proofUploadInput');
+    if (fileInput && fileInput.files[0] && currentOrderIdForUpload) {
+        await uploadPaymentProof(currentOrderIdForUpload, fileInput.files[0]);
+        window.closeUploadProofModal();
+    } else {
+        showMessage("Please select a file first.", "error");
+    }
+};
+
 // Proof modal for customer view
 window.openProofModal = function(imageSrc) {
     const modal = document.getElementById('proofModal');
@@ -284,5 +363,12 @@ onAuthStateChanged(auth, (user) => {
                 </div>
             `;
         }
+    }
+    
+    // Redirect after brief delay to allow message to render if needed
+    if (!user) {
+        setTimeout(() => {
+            window.location.replace('login.html');
+        }, 100);
     }
 });

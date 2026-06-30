@@ -258,6 +258,54 @@ body {
     font-style: italic;
 }
 
+/* Proof upload section */
+.proof-upload-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.upload-proof-btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: #5c491f;
+    color: #fffef8;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.upload-proof-btn:hover {
+    background-color: #7c6c3f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 73, 31, 0.3);
+}
+
+/* Admin comment section */
+.admin-comment-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #fff8e6;
+    border: 1px solid #ffd966;
+    border-radius: 5px;
+}
+
+.admin-comment-section strong {
+    color: #856404;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.admin-comment-text {
+    color: #5c491f;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
 /* Tracking info */
 .tracking-info-section {
     margin-top: 12px;

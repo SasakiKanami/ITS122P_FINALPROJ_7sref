@@ -113,6 +113,9 @@
     </footer>
 
     <script type="module">
+        import { requireAuth } from "../js/auth-guard.js";
+        await requireAuth();
+
         import { db } from "../js/firebase-config.js";
         import { auth } from "../js/firebase-config.js";
         import {

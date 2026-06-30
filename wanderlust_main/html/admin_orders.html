@@ -189,18 +189,25 @@
                     ${orderData.paymentProof ? `<br><img src="${orderData.paymentProof}" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #dad6c2; margin-top:8px; cursor:pointer;" onclick="openProofModal('${orderData.paymentProof.replace(/'/g, "\\'")}')" title="Click to enlarge">` : '<span style="color:#888; margin-left:8px;">None</span>'}
                 </div>
                 <div style="margin-bottom:15px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-                        <strong style="color:#5c491f;">Delivery Tracking Info:</strong>
-                        <button id="saveTrackingBtn" style="background:#5c491f; color:white; border:none; padding:6px 16px; border-radius:5px; cursor:pointer; font-family:'Playfair Display',serif; font-size:13px; white-space:nowrap;">Save Tracking Info</button>
+                    <strong style="color:#5c491f; display:block; margin-bottom:8px;">Admin Comment (Customer Visible):</strong>
+                    <span style="font-size:12px; color:#797259; display:block; margin-bottom:8px;">Customer sees this on their order tracking page</span>
+                    <textarea id="adminCommentTextarea" placeholder="Add a note about the payment proof, delivery issues, or other important info for the customer..." style="width:100%; min-height:80px; padding:12px; border:1px solid #dad6c2; border-radius:5px; font-family:'Playfair Display',serif; font-size:14px; background:#fffef8; color:#3a382f; resize:vertical; box-sizing:border-box;">${orderData.adminComment || ''}</textarea>
+                    <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                        <button id="saveAdminCommentBtn" style="background:#5c491f; color:white; border:none; padding:6px 16px; border-radius:5px; cursor:pointer; font-family:'Playfair Display',serif; font-size:13px;">Save Comment</button>
                     </div>
+                    <span id="adminCommentSaveStatus" style="font-size:12px; margin-left:8px;"></span>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <strong style="color:#5c491f; display:block; margin-bottom:8px;">Delivery Tracking Info:</strong>
                     <textarea id="trackingInfoTextarea" placeholder="Paste tracking links, courier info, or delivery notes here..." style="width:100%; min-height:100px; padding:12px; border:1px solid #dad6c2; border-radius:5px; font-family:'Playfair Display',serif; font-size:14px; background:#fffef8; color:#3a382f; resize:vertical; box-sizing:border-box;">${(orderData.trackingInfo || '').replace(/<environment_details>[\s\S]*?<\/environment_details>/gi, '')}</textarea>
+                    <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                        <button id="saveTrackingBtn" style="background:#5c491f; color:white; border:none; padding:6px 16px; border-radius:5px; cursor:pointer; font-family:'Playfair Display',serif; font-size:13px;">Save Tracking Info</button>
+                    </div>
                     <span id="trackingSaveStatus" style="font-size:12px; margin-left:8px;"></span>
                 </div>
                 <div style="margin-bottom:20px; padding:15px; background:#f5f0e8; border:1px solid #e2d7c3; border-radius:6px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-                        <strong style="color:#5c491f;">Shipping Fee (Cash on Delivery):</strong>
-                        <span style="font-size:12px; color:#797259;">Customer pays this in cash upon delivery</span>
-                    </div>
+                    <strong style="color:#5c491f; display:block; margin-bottom:8px;">Shipping Fee (Cash on Delivery):</strong>
+                    <span style="font-size:12px; color:#797259; display:block; margin-bottom:8px;">Customer pays this in cash upon delivery</span>
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                         <span style="font-size:16px; color:#3a382f;">₱</span>
                         <input type="number" id="shippingFeeInput" value="${orderData.shippingFee || 0}" min="0" step="1" style="flex:1; min-width:120px; padding:10px; border:1px solid #dad6c2; border-radius:5px; font-family:'Playfair Display',serif; font-size:16px; background:#fffef8; color:#3a382f; box-sizing:border-box;">
@@ -226,15 +233,19 @@
             `;
             detailsModal.style.display = 'block';
 
-            const saveBtn = document.getElementById('saveTrackingBtn');
+            const saveTrackingBtn = document.getElementById('saveTrackingBtn');
             const trackingTextarea = document.getElementById('trackingInfoTextarea');
             const trackingStatus = document.getElementById('trackingSaveStatus');
             const shippingFeeInput = document.getElementById('shippingFeeInput');
             const shippingFeeStatus = document.getElementById('shippingFeeSaveStatus');
+            const adminCommentTextarea = document.getElementById('adminCommentTextarea');
+            const adminCommentStatus = document.getElementById('adminCommentSaveStatus');
+            const saveAdminCommentBtn = document.getElementById('saveAdminCommentBtn');
 
             const handleSave = async () => {
                 const newTrackingInfo = trackingTextarea.value.trim();
                 const newShippingFee = shippingFeeInput.value === '' ? 0 : Number(shippingFeeInput.value);
+                const newAdminComment = adminCommentTextarea.value.trim();
 
                 trackingStatus.textContent = 'Saving...';
                 trackingStatus.style.color = '#797259';
@@ -242,11 +253,14 @@
                     shippingFeeStatus.textContent = 'Saving...';
                     shippingFeeStatus.style.color = '#797259';
                 }
+                adminCommentStatus.textContent = 'Saving...';
+                adminCommentStatus.style.color = '#797259';
 
                 try {
                     await updateDoc(doc(db, "orders", orderData.orderId), {
                         trackingInfo: newTrackingInfo,
                         shippingFee: newShippingFee,
+                        adminComment: newAdminComment,
                         updatedAt: serverTimestamp()
                     });
                     trackingStatus.textContent = 'Saved successfully!';
@@ -255,9 +269,12 @@
                         shippingFeeStatus.textContent = 'Saved successfully!';
                         shippingFeeStatus.style.color = '#28a745';
                     }
+                    adminCommentStatus.textContent = 'Saved successfully!';
+                    adminCommentStatus.style.color = '#28a745';
                     setTimeout(() => {
                         trackingStatus.textContent = '';
                         if (shippingFeeStatus) shippingFeeStatus.textContent = '';
+                        adminCommentStatus.textContent = '';
                     }, 2000);
                 } catch (error) {
                     trackingStatus.textContent = 'Error saving: ' + error.message;
@@ -266,11 +283,17 @@
                         shippingFeeStatus.textContent = 'Error saving: ' + error.message;
                         shippingFeeStatus.style.color = '#dc3545';
                     }
+                    adminCommentStatus.textContent = 'Error saving: ' + error.message;
+                    adminCommentStatus.style.color = '#dc3545';
                 }
             };
 
-            if (saveBtn) {
-                saveBtn.addEventListener('click', handleSave);
+            if (saveTrackingBtn) {
+                saveTrackingBtn.addEventListener('click', handleSave);
+            }
+
+            if (saveAdminCommentBtn) {
+                saveAdminCommentBtn.addEventListener('click', handleSave);
             }
 
             if (shippingFeeInput && shippingFeeStatus) {

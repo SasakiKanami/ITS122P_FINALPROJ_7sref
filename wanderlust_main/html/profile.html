@@ -393,6 +393,10 @@
         <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
     </footer>
 
+    <script type="module">
+        import { requireAuth } from "../js/auth-guard.js";
+        await requireAuth();
+    </script>
     <script type="module" src="../js/profile.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.0/build/js/intlTelInput.min.js"></script>
 </body>
