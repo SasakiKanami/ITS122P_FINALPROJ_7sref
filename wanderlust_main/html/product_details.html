@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderLustBagsPH | Product Details</title>
+    <link rel="stylesheet" href="../css/product_details_style.css">
+
+</head>
+<body>
+
+    <header>
+        <nav class="navbar">
+            <h2 class="logo">WanderLustBagsPH</h2>
+            <ul class="nav-links">
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="order_tracking.html">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="login.html" onclick="logout()" class="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="product-details-section">
+        <a href="shop.html" class="back-link">← Back to Shop</a>
+
+        <div class="product-details-container" id="productDetails">
+            <div class="loading-details">🔄 Loading product details...</div>
+        </div>
+
+        <div class="product-extra-info" id="productExtraInfo" style="display:none;">
+            <h2>Product Information</h2>
+            <table id="productInfoTable">
+                <!-- Will be populated dynamically -->
+            </table>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+    </footer>
+
+    <script type="module">
+        import { db } from "../js/firebase-config.js";
+        import { auth } from "../js/firebase-config.js";
+        import {
+            doc,
+            getDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            addDoc,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        // ==================== GET PRODUCT ID FROM URL ====================
+        function getProductId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // ==================== LOAD PRODUCT DETAILS ====================
+        async function loadProductDetails() {
+            const productId = getProductId();
+            const container = document.getElementById('productDetails');
+            const extraInfo = document.getElementById('productExtraInfo');
+            const infoTable = document.getElementById('productInfoTable');
+
+            if (!productId) {
+                container.innerHTML = `
+                    <div class="error-details">
+                        <h2>❌ Product ID not found</h2>
+                        <p>No product ID provided in the URL.</p>
+                        <a href="shop.html" style="display:inline-block; margin-top:15px; padding:10px 20px; background:#111; color:#fff; text-decoration:none; border-radius:5px;">Back to Shop</a>
+                    </div>
+                `;
+                extraInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                // Fetch product from Firestore
+                const productDoc = await getDoc(doc(db, "products", productId));
+
+                if (!productDoc.exists()) {
+                    container.innerHTML = `
+                        <div class="error-details">
+                            <h2>❌ Product Not Found</h2>
+                            <p>This product may have been removed or doesn't exist.</p>
+                            <a href="shop.html" style="display:inline-block; margin-top:15px; padding:10px 20px; background:#111; color:#fff; text-decoration:none; border-radius:5px;">Back to Shop</a>
+                        </div>
+                    `;
+                    extraInfo.style.display = 'none';
+                    return;
+                }
+
+                const product = productDoc.data();
+                const isInStock = product.stock > 0;
+
+                // ==================== RENDER PRODUCT DETAILS ====================
+                container.innerHTML = `
+                    <div class="product-image">
+                        ${product.image ? 
+                            `<img src="${product.image}" alt="${product.name}" />` :
+                            `<div class="no-image">📷 No Image Available</div>`
+                        }
+                    </div>
+
+                    <div class="product-info">
+                        <h1>${product.name}</h1>
+                        <p class="price">₱${(product.price || 0).toLocaleString()}</p>
+                        <p class="stock ${isInStock ? '' : 'out-of-stock'}">
+                            ${isInStock ? '✅ Stock: Available' : '❌ Stock: Out of Stock'}
+                        </p>
+
+                        <p class="description">
+                            ${product.description || 'No description available for this product.'}
+                        </p>
+
+                        <div class="quantity-controls">
+                            <label for="qty">Quantity</label>
+                            <button class="qty-btn" id="decreaseQty" ${!isInStock ? 'disabled' : ''}>−</button>
+                            <span class="qty-display" id="qtyDisplay">1</span>
+                            <button class="qty-btn" id="increaseQty" ${!isInStock ? 'disabled' : ''}>+</button>
+                        </div>
+
+                        <div class="buttons">
+                            <button class="add-cart-btn" id="addToCartBtn" ${!isInStock ? 'disabled' : ''}>
+                                ${isInStock ? '🛒 Add to Cart' : 'Out of Stock'}
+                            </button>
+                            <button class="buy-now-btn" id="buyNowBtn" ${!isInStock ? 'disabled' : ''}>
+                                Buy Now
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // ==================== RENDER EXTRA INFO ====================
+                extraInfo.style.display = 'block';
+                infoTable.innerHTML = `
+                    <tr>
+                        <th>Category</th>
+                        <td>${product.category || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Price</th>
+                        <td>₱${(product.price || 0).toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <th>Stock</th>
+                        <td>${product.stock || 0} available</td>
+                    </tr>
+                    ${product.material ? `<tr><th>Material</th><td>${product.material}</td></tr>` : ''}
+                    ${product.color ? `<tr><th>Color</th><td>${product.color}</td></tr>` : ''}
+                    <tr>
+                        <th>Product ID</th>
+                        <td style="font-size:12px; color:#888;">${productId}</td>
+                    </tr>
+                `;
+
+                // ==================== QUANTITY CONTROLS ====================
+                let quantity = 1;
+                const qtyDisplay = document.getElementById('qtyDisplay');
+                const decreaseBtn = document.getElementById('decreaseQty');
+                const increaseBtn = document.getElementById('increaseQty');
+
+                decreaseBtn.addEventListener('click', () => {
+                    if (quantity > 1) {
+                        quantity--;
+                        qtyDisplay.textContent = quantity;
+                    }
+                });
+
+                increaseBtn.addEventListener('click', () => {
+                    if (quantity < product.stock) {
+                        quantity++;
+                        qtyDisplay.textContent = quantity;
+                    } else {
+                        alert(`Only ${product.stock} items available in stock!`);
+                    }
+                });
+
+                // ==================== ADD TO CART ====================
+                document.getElementById('addToCartBtn').addEventListener('click', async () => {
+                    await addToCart(productId, product, quantity);
+                });
+
+                // ==================== BUY NOW ====================
+                document.getElementById('buyNowBtn').addEventListener('click', async () => {
+                    await buyNow(productId, product, quantity);
+                });
+
+            } catch (error) {
+                console.error('Error loading product:', error);
+                container.innerHTML = `
+                    <div class="error-details">
+                        <h2>❌ Error Loading Product</h2>
+                        <p>${error.message}</p>
+                        <button onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+                extraInfo.style.display = 'none';
+            }
+        }
+
+        // ==================== ADD TO CART ====================
+        async function addToCart(productId, product, quantity) {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please login to add items to cart.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                if (product.stock <= 0) {
+                    alert('Sorry, this product is out of stock!');
+                    return;
+                }
+
+                if (quantity > product.stock) {
+                    alert(`Only ${product.stock} items available in stock!`);
+                    return;
+                }
+
+                const cartRef = collection(db, "carts", user.uid, "items");
+                const q = query(cartRef, where("productId", "==", productId));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const cartItemDoc = querySnapshot.docs[0];
+                    const currentQuantity = cartItemDoc.data().quantity || 1;
+                    const newQuantity = currentQuantity + quantity;
+                    
+                    if (newQuantity > product.stock) {
+                        alert(`Only ${product.stock} items available in stock!`);
+                        return;
+                    }
+                    
+                    await updateDoc(doc(db, "carts", user.uid, "items", cartItemDoc.id), {
+                        quantity: newQuantity
+                    });
+                    
+                    alert(`✅ Updated "${product.name}" quantity to ${newQuantity}!`);
+                } else {
+                    await addDoc(cartRef, {
+                        productId: productId,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image || '',
+                        category: product.category || 'Uncategorized',
+                        quantity: quantity,
+                        addedAt: new Date()
+                    });
+                    
+                    alert(`✅ Added ${quantity} x "${product.name}" to cart!`);
+                }
+
+                updateCartCount();
+
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                alert('Error adding to cart: ' + error.message);
+            }
+        }
+
+        // ==================== BUY NOW ====================
+        async function buyNow(productId, product, quantity) {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please login to continue.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                if (product.stock <= 0) {
+                    alert('Sorry, this product is out of stock!');
+                    return;
+                }
+
+                if (quantity > product.stock) {
+                    alert(`Only ${product.stock} items available in stock!`);
+                    return;
+                }
+
+                await addToCart(productId, product, quantity);
+                window.location.href = 'checkout.html';
+
+            } catch (error) {
+                console.error('Error with Buy Now:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // ==================== UPDATE CART COUNT ====================
+        async function updateCartCount() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            try {
+                const cartRef = collection(db, "carts", user.uid, "items");
+                const querySnapshot = await getDocs(cartRef);
+                
+                let totalItems = 0;
+                querySnapshot.forEach(doc => {
+                    totalItems += doc.data().quantity || 0;
+                });
+                
+                const cartLink = document.querySelector('.nav-links a[href="cart.html"]');
+                if (cartLink) {
+                    cartLink.textContent = totalItems > 0 ? `Cart (${totalItems})` : 'Cart';
+                }
+            } catch (error) {
+                console.error('Error updating cart count:', error);
+            }
+        }
+
+        // ==================== LOGOUT ====================
+        window.logout = async function() {
+            try {
+                await auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        };
+
+        // ==================== INIT ====================
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('👤 User logged in:', user.email);
+                updateCartCount();
+            } else {
+                console.log('👤 User not logged in');
+            }
+            loadProductDetails();
+        });
+
+        console.log('📄 Product details page loaded!');
+    </script>
+</body>
+</html>

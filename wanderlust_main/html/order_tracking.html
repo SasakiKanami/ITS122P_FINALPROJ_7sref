@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderLustBagsPH | Order Tracking</title>
+    <link rel="stylesheet" href="../css/order_tracking_style.css">
+</head>
+<body>
+
+    <header>
+        <nav class="navbar">
+            <h2 class="logo">WanderLustBagsPH</h2>
+
+            <ul class="nav-links">
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="order_tracking.html">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="login.html" onclick="logout()" class="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="orders-section">
+        <h1>Order Tracking</h1>
+        <p class="orders-description">View your order history and check the current status of your purchases.</p>
+
+        <div class="search-order">
+            <input type="text" id="searchOrderInput" placeholder="Enter order number...">
+            <button id="searchOrderBtn">Search Order</button>
+        </div>
+
+    </section>
+
+    <script type="module" src="../js/order_tracking.js"></script>
+    <div id="proofModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        <span style="position:absolute; top:20px; right:30px; color:white; font-size:40px; cursor:pointer; font-weight:bold;" id="closeProofModal">&times;</span>
+        <img id="proofModalImage" style="max-width:90%; max-height:90%; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5);" />
+    </div>
+    <script type="module">
+        const proofModal = document.getElementById('proofModal');
+        const proofModalImg = document.getElementById('proofModalImage');
+
+        window.closeProofModalCustomer = function() {
+            proofModal.style.display = 'none';
+            proofModalImg.src = '';
+        };
+
+        document.getElementById('closeProofModal')?.addEventListener('click', window.closeProofModalCustomer);
+        proofModal?.addEventListener('click', (e) => {
+            if (e.target === proofModal) {
+                window.closeProofModalCustomer();
+            }
+        });
+    </script>
+
+    <footer>
+        <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

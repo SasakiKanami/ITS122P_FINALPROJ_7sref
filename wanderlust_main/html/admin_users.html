@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users | Admin | WanderLustBagsPH</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../css/admin_style.css">
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>Wander<span>Lust</span></h2>
+                <p>Admin Dashboard</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="admin_dashboard.html"><i class='bx bx-home'></i> Dashboard</a></li>
+                <li><a href="admin_products.html"><i class='bx bx-package'></i> Products</a></li>
+                <li><a href="admin_orders.html"><i class='bx bx-cart'></i> Orders</a></li>
+                <li><a href="admin_users.html" class="active"><i class='bx bx-group'></i> Users</a></li>
+                <li><a href="admin_payment_methods.html"><i class='bx bx-credit-card'></i> Payment Methods</a></li>
+                <li><a href="admin_profile.html"><i class='bx bx-user'></i> Profile</a></li>
+                <li><hr class="sidebar-divider"></li>
+                <li><a href="#" id="admin-logout"><i class='bx bx-log-out'></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-topbar-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class='bx bx-menu'></i>
+                    </button>
+                    <h4>Manage Users</h4>
+                </div>
+
+                <div class="admin-topbar-right">
+                    <div class="admin-user" onclick="window.location.href='admin_profile.html'">
+                        <div class="avatar">A</div>
+                        <div class="user-info">
+                            <div class="name" id="adminName">Admin</div>
+                            <div class="role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h3>All Users</h3>
+                        <span id="userCount" style="color:#888; font-size:14px;">0 users</span>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Date Joined</th>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="4" style="text-align:center; color:#888;">Loading users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <footer class="admin-footer">
+                    <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/admin_users.js"></script>
+    <script type="module">
+        import { signOut, auth } from "../js/firebase-config.js";
+
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.getElementById('admin-logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await signOut(auth);
+            window.location.href = 'admin_login.html';
+        });
+    </script>
+</body>
+
+</html>

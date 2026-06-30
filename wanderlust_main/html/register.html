@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register for Wanderlust</title>
+
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <link rel="stylesheet" href="../css/register_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="carousel-panel">
+            <div class="carousel-container">
+                <img src="" alt="Featured Product" class="carousel-image" id="carouselCurrent">
+                <div class="carousel-dots" id="carouselDots"></div>
+            </div>
+        </div>
+
+        <div class="form-box register">
+        <form>
+            <h2>Register</h2>
+
+            <div class="input-box">
+                <input type="text" placeholder="Username" required>
+                <i class='bx bxs-user'></i>
+            </div>
+
+            <div class="input-box">
+                <input type="text" placeholder="First Name" required id="reg-fname">
+                <i class='bx bxs-id-card'></i>
+            </div>
+
+            <div class="input-box">
+                <input type="text" placeholder="Middle Name" required id="reg-mname">
+                <i class='bx bxs-id-card'></i>
+            </div>
+
+            <div class="input-box">
+                <input type="text" placeholder="Last Name" required id="reg-lname">
+                <i class='bx bxs-id-card'></i>
+            </div>
+
+            <div class="input-box">
+                <input type="email" placeholder="Email" required>
+                <i class='bx bxs-envelope'></i>
+            </div>
+
+            <div class="input-box">
+                <input type="tel" placeholder="Contact Number" required id="reg-contact">
+                <i class='bx bxs-phone'></i>
+            </div>
+
+
+          <div class="input-box">
+            <input type="password" placeholder="Password" required id="password" />
+            <i class="bx bxs-lock-alt" id="togglePassword" style="cursor:pointer;" onclick="
+              const p = document.getElementById('password');
+              p.type = p.type === 'password' ? 'text' : 'password';
+              this.classList.toggle('bxs-lock-alt');
+              this.classList.toggle('bxs-lock-open-alt');
+            "></i>
+          </div>
+
+            <br>
+
+            <button type="submit" class="btn">Register</button>
+            <br>
+
+        
+            <br>
+            <br>
+
+            <div class="register-link">
+                <a href="login.html">Already have an account? <u>Login here!</u></a>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+    <footer>
+        <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+    </footer>
+
+<!-- Firebase Auth Script -->
+<script type="module" src="../js/authentication.js"></script>
+
+</body>
+
+
+</html>

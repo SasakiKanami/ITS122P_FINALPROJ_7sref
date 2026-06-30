@@ -1,0 +1,341 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Playfair Display', serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #faf9f5, #e2d7c3);
+    min-height: 100vh;
+    color: #3a382f;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: #5c491f;
+    color: white;
+}
+
+.logo {
+    font-size: 24px;
+    color: white;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #e2d7c3;
+}
+
+.logout-btn {
+    background-color: transparent !important;
+    color: white !important;
+    padding: 8px 16px;
+    border: 1px solid #e2d7c3;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #e2d7c3 !important;
+    color: #5c491f !important;
+}
+
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 70px 20px;
+    background: linear-gradient(135deg, #7c6c3f, #5c491f);
+    color: #fffef8;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.hero p {
+    font-size: 18px;
+    color: #e2d7c3;
+}
+
+/* Shop Section */
+.shop-section {
+    padding: 40px 60px;
+
+    flex: 1;
+}
+
+.shop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.shop-header h2 {
+    color: #5c491f;
+    font-size: 28px;
+}
+
+.shop-header input {
+    padding: 10px 15px;
+    width: 250px;
+    border: 1px solid #dad6c2;
+    border-radius: 5px;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    background-color: #fffef8;
+    color: #3a382f;
+    transition: all 0.3s;
+}
+
+.shop-header input:focus {
+    outline: none;
+    border-color: #5c491f;
+    box-shadow: 0 0 0 3px rgba(92, 73, 31, 0.1);
+}
+
+/* Category Buttons */
+.category-buttons {
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-buttons button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #797259;
+    color: #fffef8;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.category-buttons button:hover {
+    background-color: #5c491f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 73, 31, 0.3);
+}
+
+.category-buttons button.active {
+    background-color: #5c491f;
+    box-shadow: 0 4px 12px rgba(92, 73, 31, 0.3);
+}
+
+/* Product Grid */
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.product-card {
+    background-color: #fffef8;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dad6c2;
+    transition: all 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(92, 73, 31, 0.15);
+}
+
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    background-color: rgb(254, 252, 240);
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #e2d7c3;
+}
+
+.product-card h3 {
+    margin-bottom: 10px;
+    color: #5c491f;
+    font-size: 20px;
+}
+
+.product-card p {
+    color: #797259;
+    margin-bottom: 8px;
+}
+
+.price {
+    font-weight: bold;
+    font-size: 18px;
+    color: #5c491f;
+    margin-bottom: 5px;
+}
+
+.stock {
+    color: #2d7d46;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.product-card .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.product-card button {
+    padding: 10px 18px;
+    border: none;
+    background-color: #797259;
+    color: #fffef8;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.product-card button:hover {
+    background-color: #5c491f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 73, 31, 0.3);
+}
+
+.product-card button.add-to-cart {
+    background-color: #5c491f;
+}
+
+.product-card button.add-to-cart:hover {
+    background-color: #7c6c3f;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #5c491f;
+    color: #e2d7c3;
+    margin-top: auto;
+}
+
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .product-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px;
+    }
+    
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .shop-section {
+        padding: 20px;
+    }
+    
+    .shop-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .shop-header input {
+        width: 100%;
+    }
+    
+    .product-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero h1 {
+        font-size: 30px;
+    }
+}
+
+/* Floating Cart Button */
+.floating-cart-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #fffef8;
+    color: #5c491f;
+    border: 2px solid #5c491f;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 15px rgba(92, 73, 31, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.floating-cart-btn:hover {
+    background-color: #faf9f5;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(92, 73, 31, 0.4);
+}
+
+.floating-cart-btn.visible {
+    display: flex;
+}
+
+.floating-cart-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: #dc3545;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}

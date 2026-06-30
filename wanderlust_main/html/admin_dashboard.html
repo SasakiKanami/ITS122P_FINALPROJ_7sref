@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Admin | WanderLustBagsPH</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../css/admin_style.css">
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>Wander<span>Lust</span></h2>
+                <p>Admin Dashboard</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="admin_dashboard.html" class="active"><i class='bx bx-home'></i> Dashboard</a></li>
+                <li><a href="admin_products.html"><i class='bx bx-package'></i> Products</a></li>
+                <li><a href="admin_orders.html"><i class='bx bx-cart'></i> Orders</a></li>
+                <li><a href="admin_users.html"><i class='bx bx-group'></i> Users</a></li>
+                <li><a href="admin_payment_methods.html"><i class='bx bx-credit-card'></i> Payment Methods</a></li>
+                <li><a href="admin_profile.html"><i class='bx bx-user'></i> Profile</a></li>
+                <li>
+                    <hr class="sidebar-divider">
+                </li>
+                <li><a href="#" id="admin-logout"><i class='bx bx-log-out'></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-topbar-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class='bx bx-menu'></i>
+                    </button>
+                    <h4>Dashboard</h4>
+                </div>
+
+                <div class="admin-topbar-right">
+                    <div class="notification">
+                        <i class='bx bx-bell'></i>
+                        <span class="badge">3</span>
+                    </div>
+
+                    <div class="admin-user" onclick="window.location.href='admin_profile.html'">
+                        <div class="avatar">A</div>
+                        <div class="user-info">
+                            <div class="name" id="adminName">Admin</div>
+                            <div class="role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card gold">
+                        <div class="stat-icon"><i class='bx bx-dollar'></i></div>
+                        <div class="stat-number" id="totalRevenue">₱0</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <div class="stat-icon"><i class='bx bx-package'></i></div>
+                        <div class="stat-number" id="totalProducts">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+
+                    <div class="stat-card green">
+                        <div class="stat-icon"><i class='bx bx-cart'></i></div>
+                        <div class="stat-number" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+
+                    <div class="stat-card red">
+                        <div class="stat-icon"><i class='bx bx-user'></i></div>
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="section-card">
+                    <div class="card-header">
+                        <h3>Recent Orders</h3>
+                        <a href="admin_orders.html" class="btn btn-primary btn-sm">View All</a>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentOrders">
+                                <tr>
+                                    <td colspan="5" style="text-align:center; color:#888;">No orders yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Low Stock Products -->
+                <div class="section-card">
+                    <div class="card-header">
+                        <h3>Low Stock Products</h3>
+                        <a href="admin_products.html" class="btn btn-primary btn-sm">Manage Products</a>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lowStockProducts">
+                                <tr>
+                                    <td colspan="5" style="text-align:center; color:#888;">No low stock products</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <footer class="admin-footer">
+                    <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/admin_dashboard.js"></script>
+    <script type="module">
+        import { signOut, auth } from "../js/firebase-config.js";
+
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.getElementById('admin-logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await signOut(auth);
+            window.location.href = 'admin_login.html';
+        });
+    </script>
+</body>
+
+</html>

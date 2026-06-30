@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Forgot Password - Wanderlust</title>
+
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/forgot_pass_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-box login">
+            <form id="forgot-form">
+                <h2>Reset Password</h2>
+                <p>Enter your email address to reset your password.</p>
+
+                <div class="input-box">
+                    <input type="email" placeholder="Email" required id="reset-email" />
+                    <i class='bx bxs-envelope'></i>
+                </div>
+
+                <button type="submit" class="btn" id="submit-btn">Send Reset Link</button>
+
+                <div id="resend-section" style="display:none;">
+                    <p>Didn't receive the email?
+                        <button type="button" id="resend-btn" disabled>
+                            Resend in <span id="timer">60</span>s
+                        </button>
+                    </p>
+                </div>
+
+                <div id="error-message" style="color:red; font-size:13px; margin-top:10px;"></div>
+
+                <br>
+
+                <div class="forgot-link">
+                    <a href="login.html">Back to Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+    </footer>
+
+    <script type="module">
+        import { auth } from "../js/firebase-config.js";
+        import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        const form = document.getElementById("forgot-form");
+        const resetEmail = document.getElementById("reset-email");
+        const submitBtn = document.getElementById("submit-btn");
+        const resendBtn = document.getElementById("resend-btn");
+        const resendSection = document.getElementById("resend-section");
+        const errorMessage = document.getElementById("error-message");
+
+        let countdown;
+
+        function startTimer() {
+            let seconds = 60;
+            resendSection.style.display = "block";
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = `Resend in <span id="timer">${seconds}</span>s`;
+
+            countdown = setInterval(() => {
+                seconds--;
+                document.getElementById("timer").textContent = seconds;
+
+                if (seconds <= 0) {
+                    clearInterval(countdown);
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = "Resend Email";
+                }
+            }, 1000);
+        }
+
+        async function sendReset() {
+            const email = resetEmail.value.trim();
+            errorMessage.textContent = "";
+
+            if (!email) {
+                errorMessage.textContent = "Please enter your email address.";
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending...";
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Password reset email sent! Check your inbox.");
+                submitBtn.textContent = "Email Sent!";
+                startTimer();
+            } catch (error) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Send Reset Link";
+
+                switch (error.code) {
+                    case 'auth/too-many-requests':
+                        errorMessage.textContent = "Too many attempts. Please wait a few minutes before trying again.";
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage.textContent = "No account found with this email address.";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage.textContent = "Please enter a valid email address.";
+                        break;
+                    default:
+                        errorMessage.textContent = "Error: " + error.message;
+                }
+            }
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            await sendReset();
+        });
+
+        resendBtn.addEventListener("click", async () => {
+            clearInterval(countdown);
+            resendBtn.textContent = "Sending...";
+            await sendReset();
+        });
+    </script>
+</body>
+
+</html>

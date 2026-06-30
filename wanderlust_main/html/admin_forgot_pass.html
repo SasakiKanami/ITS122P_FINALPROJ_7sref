@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Forgot Password - Wanderlust</title>
+
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/forgot_pass_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-box login">
+            <form id="admin-forgot-form">
+                <h2>Admin Password Reset</h2>
+                <p>Enter your admin email address to receive a password reset link.</p>
+
+                <div class="input-box">
+                    <input type="email" placeholder="Admin Email" required id="admin-reset-email" />
+                    <i class='bx bxs-envelope'></i>
+                </div>
+
+                <button type="submit" class="btn" id="submit-btn">Send Reset Link</button>
+
+                <div id="resend-section" style="display:none;">
+                    <p>Didn't receive the email?
+                        <button type="button" id="resend-btn" disabled>
+                            Resend in <span id="timer">60</span>s
+                        </button>
+                    </p>
+                </div>
+
+                <div id="error-message" style="color:red; font-size:13px; margin-top:10px;"></div>
+
+                <br>
+
+                <div class="forgot-link">
+                    <a href="admin_login.html">Back to Admin Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="../js/admin_forgot_pass.js"></script>
+</body>
+
+</html>

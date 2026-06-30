@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders | Admin | WanderLustBagsPH</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../css/admin_style.css">
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>Wander<span>Lust</span></h2>
+                <p>Admin Dashboard</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="admin_dashboard.html"><i class='bx bx-home'></i> Dashboard</a></li>
+                <li><a href="admin_products.html"><i class='bx bx-package'></i> Products</a></li>
+                <li><a href="admin_orders.html" class="active"><i class='bx bx-cart'></i> Orders</a></li>
+                <li><a href="admin_users.html"><i class='bx bx-group'></i> Users</a></li>
+                <li><a href="admin_payment_methods.html"><i class='bx bx-credit-card'></i> Payment Methods</a></li>
+                <li><a href="admin_profile.html"><i class='bx bx-user'></i> Profile</a></li>
+                <li><hr class="sidebar-divider"></li>
+                <li><a href="#" id="admin-logout"><i class='bx bx-log-out'></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-topbar-left">
+                    <button class="toggle-sidebar" id="toggleSidebar">
+                        <i class='bx bx-menu'></i>
+                    </button>
+                    <h4>Manage Orders</h4>
+                </div>
+
+                <div class="admin-topbar-right">
+                    <div class="admin-user" onclick="window.location.href='admin_profile.html'">
+                        <div class="avatar">A</div>
+                        <div class="user-info">
+                            <div class="name" id="adminName">Admin</div>
+                            <div class="role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h3>All Orders</h3>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="text" id="orderSearch" placeholder="Search orders..." style="padding:8px 12px; border:1px solid #dad6c2; border-radius:5px; font-family:'Playfair Display',serif; font-size:14px; background:#fffef8; color:#3a382f;">
+                            <span id="orderCount" style="color:#888; font-size:14px;">0 orders</span>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Proof</th>
+                                    <th>Details</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <tr>
+                                    <td colspan="9" style="text-align:center; color:#888;">Loading orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <footer class="admin-footer">
+                    <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/admin_orders.js"></script>
+    <div id="proofModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        <span style="position:absolute; top:20px; right:30px; color:white; font-size:40px; cursor:pointer; font-weight:bold;" id="closeProofModal">&times;</span>
+        <img id="proofModalImage" style="max-width:90%; max-height:90%; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5);" />
+    </div>
+    <div id="orderDetailsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9998; overflow-y:auto; padding:40px 20px;">
+        <div style="background:#fffef8; max-width:800px; margin:0 auto; border-radius:8px; border:1px solid #dad6c2; margin-bottom:40px; display:flex; flex-direction:column; max-height:85vh;">
+            <div style="padding:12px 20px; display:flex; justify-content:flex-end; flex-shrink:0; border-bottom:1px solid #e2d7c3;">
+                <span style="color:#5c491f; font-size:32px; cursor:pointer; font-weight:bold; line-height:1;" id="closeDetailsModal">&times;</span>
+            </div>
+            <div id="orderDetailsContent" style="overflow-y:auto; padding:20px 25px 25px 25px; flex:1;"></div>
+        </div>
+    </div>
+    <script type="module">
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        import { signOut, auth, db } from "../js/firebase-config.js";
+        import { doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        document.getElementById('admin-logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await signOut(auth);
+            window.location.href = 'admin_login.html';
+        });
+
+        const proofModal = document.getElementById('proofModal');
+        const proofModalImg = document.getElementById('proofModalImage');
+        const closeProofBtn = document.getElementById('closeProofModal');
+
+        window.openProofModal = function(imageSrc) {
+            proofModalImg.src = imageSrc;
+            proofModal.style.display = 'flex';
+        };
+
+        closeProofBtn.addEventListener('click', () => {
+            proofModal.style.display = 'none';
+            proofModalImg.src = '';
+        });
+
+        proofModal.addEventListener('click', (e) => {
+            if (e.target === proofModal) {
+                proofModal.style.display = 'none';
+                proofModalImg.src = '';
+            }
+        });
+
+        const detailsModal = document.getElementById('orderDetailsModal');
+        const detailsContent = document.getElementById('orderDetailsContent');
+        const closeDetailsBtn = document.getElementById('closeDetailsModal');
+
+        window.openOrderDetailsModal = function(orderData) {
+            const itemsList = (orderData.items || []).map(item => `
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #e2d7c3;">${item.name || 'N/A'}</td>
+                    <td style="padding:8px; border-bottom:1px solid #e2d7c3;">₱${(item.price || 0).toLocaleString()}</td>
+                    <td style="padding:8px; border-bottom:1px solid #e2d7c3;">${item.quantity || 0}</td>
+                    <td style="padding:8px; border-bottom:1px solid #e2d7c3;">₱${((item.price || 0) * (item.quantity || 0)).toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            detailsContent.innerHTML = `
+                <h3 style="color:#5c491f; margin-top:0; border-bottom:2px solid #e2d7c3; padding-bottom:10px;">Order Details</h3>
+                <div style="display:grid; grid-template-columns: 140px 1fr; gap:0; border:1px solid #e2d7c3; border-radius:6px; overflow:hidden; margin-bottom:20px;">
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Order ID</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3;">#${orderData.orderId.slice(0, 8)}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Status</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3; text-transform:capitalize; ${orderData.status === 'cancelled' ? 'color:#dc3545; font-weight:600;' : ''}">${orderData.status || 'pending'}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Customer</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3;">${orderData.customerName || 'Guest'}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Contact</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3;">${orderData.contact || 'N/A'}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Address</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3; white-space:pre-line;">${orderData.address || 'N/A'}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Label</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3; text-transform:capitalize;">${orderData.label || 'N/A'}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Available Time</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3;">${orderData.availableTimeStart || ''}${orderData.availableTimeStart && orderData.availableTimeEnd ? ' to ' + orderData.availableTimeEnd : ''}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Recipient</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3;">${[orderData.recipientFirstName, orderData.recipientMiddleName, orderData.recipientLastName].filter(Boolean).join(' ') || 'N/A'}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3; border-bottom:1px solid #e2d7c3;">Payment Method</div>
+                    <div style="padding:12px 15px; border-bottom:1px solid #e2d7c3;">${orderData.paymentMethod || 'N/A'}</div>
+
+                    <div style="background:#f5f0e8; padding:12px 15px; font-weight:600; color:#5c491f; border-right:1px solid #e2d7c3;">Date</div>
+                    <div style="padding:12px 15px;">${orderData.createdAt ? new Date(orderData.createdAt.toDate()).toLocaleString() : 'N/A'}</div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <strong style="color:#5c491f;">Proof of Payment:</strong>
+                    ${orderData.paymentProof ? `<br><img src="${orderData.paymentProof}" style="max-width:200px; max-height:200px; border-radius:8px; border:1px solid #dad6c2; margin-top:8px; cursor:pointer;" onclick="openProofModal('${orderData.paymentProof.replace(/'/g, "\\'")}')" title="Click to enlarge">` : '<span style="color:#888; margin-left:8px;">None</span>'}
+                </div>
+                <div style="margin-bottom:15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                        <strong style="color:#5c491f;">Delivery Tracking Info:</strong>
+                        <button id="saveTrackingBtn" style="background:#5c491f; color:white; border:none; padding:6px 16px; border-radius:5px; cursor:pointer; font-family:'Playfair Display',serif; font-size:13px; white-space:nowrap;">Save Tracking Info</button>
+                    </div>
+                    <textarea id="trackingInfoTextarea" placeholder="Paste tracking links, courier info, or delivery notes here..." style="width:100%; min-height:100px; padding:12px; border:1px solid #dad6c2; border-radius:5px; font-family:'Playfair Display',serif; font-size:14px; background:#fffef8; color:#3a382f; resize:vertical; box-sizing:border-box;">${(orderData.trackingInfo || '').replace(/<environment_details>[\s\S]*?<\/environment_details>/gi, '')}</textarea>
+                    <span id="trackingSaveStatus" style="font-size:12px; margin-left:8px;"></span>
+                </div>
+                <div style="margin-bottom:20px; padding:15px; background:#f5f0e8; border:1px solid #e2d7c3; border-radius:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                        <strong style="color:#5c491f;">Shipping Fee (Cash on Delivery):</strong>
+                        <span style="font-size:12px; color:#797259;">Customer pays this in cash upon delivery</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-size:16px; color:#3a382f;">₱</span>
+                        <input type="number" id="shippingFeeInput" value="${orderData.shippingFee || 0}" min="0" step="1" style="flex:1; min-width:120px; padding:10px; border:1px solid #dad6c2; border-radius:5px; font-family:'Playfair Display',serif; font-size:16px; background:#fffef8; color:#3a382f; box-sizing:border-box;">
+                    </div>
+                    <span id="shippingFeeSaveStatus" style="font-size:12px; margin-left:8px;"></span>
+                </div>
+                <h4 style="color:#5c491f;">Items</h4>
+                <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                    <thead>
+                        <tr style="background:#e2d7c3; color:#5c491f;">
+                            <th style="padding:10px; text-align:left;">Product</th>
+                            <th style="padding:10px; text-align:left;">Price</th>
+                            <th style="padding:10px; text-align:left;">Qty</th>
+                            <th style="padding:10px; text-align:left;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>${itemsList}</tbody>
+                </table>
+                <div style="margin-top:15px; text-align:right; font-size:18px; color:#5c491f;">
+                    <strong>Subtotal: ₱${(orderData.subtotal || 0).toLocaleString()}</strong>
+                    ${orderData.shippingFee > 0 ? `<br><span style="font-size:14px; color:#797259;">+ Shipping Fee (COD): ₱${(orderData.shippingFee || 0).toLocaleString()}</span><br><span style="font-size:16px;">Total: ₱${((orderData.subtotal || 0) + (orderData.shippingFee || 0)).toLocaleString()}</span>` : '<br><span style="font-size:14px; color:#797259;">Cash on delivery fee to be collected by courier</span>'}
+                </div>
+            `;
+            detailsModal.style.display = 'block';
+
+            const saveBtn = document.getElementById('saveTrackingBtn');
+            const trackingTextarea = document.getElementById('trackingInfoTextarea');
+            const trackingStatus = document.getElementById('trackingSaveStatus');
+            const shippingFeeInput = document.getElementById('shippingFeeInput');
+            const shippingFeeStatus = document.getElementById('shippingFeeSaveStatus');
+
+            const handleSave = async () => {
+                const newTrackingInfo = trackingTextarea.value.trim();
+                const newShippingFee = shippingFeeInput.value === '' ? 0 : Number(shippingFeeInput.value);
+
+                trackingStatus.textContent = 'Saving...';
+                trackingStatus.style.color = '#797259';
+                if (shippingFeeStatus) {
+                    shippingFeeStatus.textContent = 'Saving...';
+                    shippingFeeStatus.style.color = '#797259';
+                }
+
+                try {
+                    await updateDoc(doc(db, "orders", orderData.orderId), {
+                        trackingInfo: newTrackingInfo,
+                        shippingFee: newShippingFee,
+                        updatedAt: serverTimestamp()
+                    });
+                    trackingStatus.textContent = 'Saved successfully!';
+                    trackingStatus.style.color = '#28a745';
+                    if (shippingFeeStatus) {
+                        shippingFeeStatus.textContent = 'Saved successfully!';
+                        shippingFeeStatus.style.color = '#28a745';
+                    }
+                    setTimeout(() => {
+                        trackingStatus.textContent = '';
+                        if (shippingFeeStatus) shippingFeeStatus.textContent = '';
+                    }, 2000);
+                } catch (error) {
+                    trackingStatus.textContent = 'Error saving: ' + error.message;
+                    trackingStatus.style.color = '#dc3545';
+                    if (shippingFeeStatus) {
+                        shippingFeeStatus.textContent = 'Error saving: ' + error.message;
+                        shippingFeeStatus.style.color = '#dc3545';
+                    }
+                }
+            };
+
+            if (saveBtn) {
+                saveBtn.addEventListener('click', handleSave);
+            }
+
+            if (shippingFeeInput && shippingFeeStatus) {
+                shippingFeeInput.addEventListener('change', handleSave);
+            }
+        };
+
+        closeDetailsBtn.addEventListener('click', () => {
+            detailsModal.style.display = 'none';
+        });
+
+        detailsModal.addEventListener('click', (e) => {
+            if (e.target === detailsModal) {
+                detailsModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

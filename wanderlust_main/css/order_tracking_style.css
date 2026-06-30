@@ -1,0 +1,360 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Playfair Display', serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #faf9f5, #e2d7c3);
+    min-height: 100vh;
+    color: #3a382f;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: #5c491f;
+    color: white;
+}
+
+.logo {
+    font-size: 24px;
+    color: white;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #e2d7c3;
+}
+
+.logout-btn {
+    background-color: transparent !important;
+    color: white !important;
+    padding: 8px 16px;
+    border: 1px solid #e2d7c3;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #e2d7c3 !important;
+    color: #5c491f !important;
+}
+
+
+/* Orders Section */
+.orders-section {
+    padding: 50px 60px;
+
+    flex: 1;
+}
+
+.orders-section h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #5c491f;
+}
+
+.orders-description {
+    color: #797259;
+    margin-bottom: 30px;
+}
+
+/* Search Order */
+.search-order {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.search-order input {
+    padding: 12px;
+    width: 300px;
+    border: 1px solid #dad6c2;
+    border-radius: 5px;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    background-color: #fffef8;
+    color: #3a382f;
+    transition: border-color 0.3s;
+}
+
+.search-order input:focus {
+    outline: none;
+    border-color: #5c491f;
+}
+
+.search-order button {
+    padding: 12px 20px;
+    border: none;
+    background-color: #797259;
+    color: #fffef8;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.search-order button:hover {
+    background-color: #5c491f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 73, 31, 0.3);
+}
+
+/* Order Card */
+.order-card {
+    background-color: #fffef8;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.order-header h2 {
+    margin-bottom: 5px;
+    color: #5c491f;
+}
+
+.order-header p {
+    color: #797259;
+}
+
+.status {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Playfair Display', serif;
+}
+
+.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.on-way {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.delivered {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.order-content p {
+    margin-bottom: 10px;
+    color: #797259;
+}
+
+.order-content p strong {
+    color: #5c491f;
+}
+
+/* Items list */
+.order-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fffef8;
+    border: 1px solid #dad6c2;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.order-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e2d7c3;
+}
+
+.order-item-info p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.order-item-name {
+    color: #5c491f;
+    font-weight: 600;
+}
+
+.order-item-qty {
+    color: #797259;
+    font-size: 13px;
+}
+
+/* Proof of payment */
+.proof-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.proof-section strong {
+    color: #5c491f;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.proof-img {
+    max-width: 180px;
+    max-height: 180px;
+    border-radius: 8px;
+    border: 1px solid #dad6c2;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.proof-img:hover {
+    transform: scale(1.02);
+}
+
+.no-proof {
+    color: #888;
+    font-style: italic;
+}
+
+/* Tracking info */
+.tracking-info-section {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #fffef8;
+    border: 1px solid #dad6c2;
+    border-radius: 5px;
+}
+
+.tracking-info-section strong {
+    color: #5c491f;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.tracking-info-text {
+    color: #3a382f;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Tracking progress */
+.tracking-progress {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.step {
+    text-align: center;
+    padding: 12px;
+    background-color: #dad6c2;
+    border-radius: 5px;
+    color: #797259;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.step.active {
+    background-color: #5c491f;
+    color: #fffef8;
+    box-shadow: 0 4px 12px rgba(92, 73, 31, 0.3);
+}
+
+.step.completed {
+    background-color: #797259;
+    color: #fffef8;
+}
+
+.step.cancelled {
+    background-color: #e2d7c3;
+    color: #797259;
+    opacity: 0.7;
+}
+
+/* Empty orders */
+.empty-orders {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fffef8;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.empty-orders p {
+    color: #797259;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.shop-now-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: #5c491f;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.shop-now-btn:hover {
+    background-color: #7c6c3f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 73, 31, 0.3);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #5c491f;
+    color: #e2d7c3;
+    margin-top: auto;
+}

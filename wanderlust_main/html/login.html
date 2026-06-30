@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Login to Wanderlust</title>
+
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/login_style.css" />
+  </head>
+
+<body>
+    <div class="container">
+        <div class="carousel-panel">
+            <div class="carousel-container">
+                <img src="" alt="Featured Product" class="carousel-image" id="carouselCurrent">
+                <div class="carousel-dots" id="carouselDots"></div>
+            </div>
+        </div>
+
+        <div class="form-box login">
+            <form action="">
+          <h2>Login</h2>
+          <div class="input-box">
+            <input type="text" placeholder="Email" required />
+            <i class="bx bxs-user"></i>
+          </div>
+          <div class="input-box">
+            <input type="password" placeholder="Password" required id="password" />
+            <i class="bx bxs-lock-alt" id="togglePassword" style="cursor:pointer;" onclick="
+              const p = document.getElementById('password');
+              p.type = p.type === 'password' ? 'text' : 'password';
+              this.classList.toggle('bxs-lock-alt');
+              this.classList.toggle('bxs-lock-open-alt');
+            "></i>
+          </div>
+          <div class="forgot-link">
+            <a href="forgot_pass.html">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn">Login</button>
+
+          <br /><br /><br />
+
+          <div class="register-link">
+            <a href="register.html">New to Wanderlust? <u>Register here!</u></a>
+          </div>
+
+<br>
+
+          <div class="register-link">
+            <a href="admin_login.html">Are you an admin? <u>Login here.</u></a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+    </footer>
+
+    <!-- Firebase Auth Script -->
+    <script type="module" src="../js/authentication.js"></script>
+</body>
+</html>

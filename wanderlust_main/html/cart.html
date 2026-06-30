@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderLustBagsPH | Cart</title>
+    <link rel="stylesheet" href="../css/cart_style.css">
+    <style>
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        
+        .empty-cart h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .empty-cart p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-cart .shop-now-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #2c3e50;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .empty-cart .shop-now-btn:hover {
+            background: #1a252f;
+        }
+
+        .cart-item .item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-item .no-image {
+            width: 100px;
+            height: 100px;
+            background: #f5f0eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .quantity button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading-cart {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav class="navbar">
+            <h2 class="logo">WanderLustBagsPH</h2>
+            <ul class="nav-links">
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html" class="active">Cart</a></li>
+                <li><a href="order_tracking.html">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="login.html" onclick="logout()" class="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="cart-section">
+        <h1>My Shopping Cart</h1>
+        <p class="cart-description">Review your selected items before proceeding to checkout.</p>
+
+        <div class="cart-container">
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items will be rendered here -->
+            </div>
+
+            <div class="cart-summary" id="cartSummary">
+                <h2>Order Summary</h2>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">₱0</span>
+                </div>
+                <hr>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span id="total">₱0</span>
+                </div>
+                <a href="checkout.html" class="checkout-btn" id="checkoutBtn">Proceed to Checkout</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 WanderLustBagsPH. All rights reserved.</p>
+    </footer>
+
+    <script type="module">
+        import { db } from "../js/firebase-config.js";
+        import { auth } from "../js/firebase-config.js";
+        import {
+            collection,
+            query,
+            where,
+            getDocs,
+            doc,
+            deleteDoc,
+            updateDoc,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        // ==================== LOAD CART ITEMS ====================
+        function loadCart() {
+            const user = auth.currentUser;
+            if (!user) {
+                document.getElementById('cartItems').innerHTML = `
+                    <div class="empty-cart">
+                        <h2>🛒 Please Login</h2>
+                        <p>Login to view your cart items.</p>
+                        <a href="login.html" class="shop-now-btn">Login</a>
+                    </div>
+                `;
+                document.getElementById('cartSummary').style.display = 'none';
+                return;
+            }
+
+            const cartItemsDiv = document.getElementById('cartItems');
+            cartItemsDiv.innerHTML = '<div class="loading-cart">🔄 Loading your cart...</div>';
+
+            // Real-time listener for cart items
+            const cartRef = collection(db, "carts", user.uid, "items");
+            const q = query(cartRef);
+
+            onSnapshot(q, async (snapshot) => {
+                if (snapshot.empty) {
+                    cartItemsDiv.innerHTML = `
+                        <div class="empty-cart">
+                            <h2>🛒 Your Cart is Empty</h2>
+                            <p>Looks like you haven't added any items yet.</p>
+                            <a href="shop.html" class="shop-now-btn">Shop Now</a>
+                        </div>
+                    `;
+                    document.getElementById('cartSummary').style.display = 'none';
+                    return;
+                }
+
+                // Show summary
+                document.getElementById('cartSummary').style.display = 'block';
+
+                // Build cart items
+                let html = '';
+                let subtotal = 0;
+                let totalItems = 0;
+
+                for (const docSnap of snapshot.docs) {
+                    const item = docSnap.data();
+                    const itemId = docSnap.id;
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    totalItems += item.quantity;
+
+                    html += `
+                        <div class="cart-item" data-id="${itemId}">
+                            ${item.image ? 
+                                `<img src="${item.image}" alt="${item.name}" class="item-image" />` :
+                                `<div class="no-image">📷 No Image</div>`
+                            }
+                            <div class="item-details">
+                                <h3>${item.name}</h3>
+                                <p>Category: ${item.category || 'Uncategorized'}</p>
+                                <p>Price: ₱${(item.price || 0).toLocaleString()}</p>
+                            </div>
+                            <div class="quantity">
+                                <button class="decrease-qty" data-id="${itemId}" data-product-id="${item.productId}" data-current="${item.quantity}">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="increase-qty" data-id="${itemId}" data-product-id="${item.productId}" data-current="${item.quantity}">+</button>
+                            </div>
+                            <p class="item-total">₱${itemTotal.toLocaleString()}</p>
+                            <button class="remove-btn" data-id="${itemId}">Remove</button>
+                        </div>
+                    `;
+                }
+
+                cartItemsDiv.innerHTML = html;
+
+                // Update summary (shipping fee removed)
+                document.getElementById('subtotal').textContent = `₱${subtotal.toLocaleString()}`;
+                document.getElementById('total').textContent = `₱${subtotal.toLocaleString()}`;
+
+                // Update cart link count
+                const cartLink = document.querySelector('.nav-links a[href="cart.html"]');
+                if (cartLink) {
+                    cartLink.textContent = `Cart (${totalItems})`;
+                }
+
+                // Attach event listeners
+                attachCartListeners();
+
+            }, (error) => {
+                console.error('Error loading cart:', error);
+                cartItemsDiv.innerHTML = `
+                    <div class="empty-cart">
+                        <h2>❌ Error Loading Cart</h2>
+                        <p>${error.message}</p>
+                        <button onclick="location.reload()" style="margin-top:15px; padding:10px 20px; border:none; background:#2c3e50; color:#fff; border-radius:5px; cursor:pointer;">Retry</button>
+                    </div>
+                `;
+            });
+        }
+
+        // ==================== CART EVENT LISTENERS ====================
+        function attachCartListeners() {
+            // Increase quantity
+            document.querySelectorAll('.increase-qty').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const itemId = e.target.dataset.id;
+                    const productId = e.target.dataset.productId;
+                    const currentQty = parseInt(e.target.dataset.current);
+                    await updateQuantity(itemId, productId, currentQty + 1);
+                });
+            });
+
+            // Decrease quantity
+            document.querySelectorAll('.decrease-qty').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const itemId = e.target.dataset.id;
+                    const productId = e.target.dataset.productId;
+                    const currentQty = parseInt(e.target.dataset.current);
+                    if (currentQty > 1) {
+                        await updateQuantity(itemId, productId, currentQty - 1);
+                    } else {
+                        // If quantity is 1, ask if they want to remove
+                        if (confirm('Remove this item from cart?')) {
+                            await removeItem(itemId);
+                        }
+                    }
+                });
+            });
+
+            // Remove item
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const itemId = e.target.dataset.id;
+                    if (confirm('Remove this item from cart?')) {
+                        await removeItem(itemId);
+                    }
+                });
+            });
+        }
+
+        // ==================== UPDATE QUANTITY ====================
+        async function updateQuantity(itemId, productId, newQuantity) {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                // Check product stock
+                const productDoc = await getDoc(doc(db, "products", productId));
+                if (productDoc.exists()) {
+                    const product = productDoc.data();
+                    if (newQuantity > product.stock) {
+                        alert(`Only ${product.stock} items available in stock!`);
+                        return;
+                    }
+                }
+
+                // Update cart item
+                await updateDoc(doc(db, "carts", user.uid, "items", itemId), {
+                    quantity: newQuantity
+                });
+
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+                alert('Error updating quantity: ' + error.message);
+            }
+        }
+
+        // ==================== REMOVE ITEM ====================
+        async function removeItem(itemId) {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                await deleteDoc(doc(db, "carts", user.uid, "items", itemId));
+                alert('✅ Item removed from cart!');
+            } catch (error) {
+                console.error('Error removing item:', error);
+                alert('Error removing item: ' + error.message);
+            }
+        }
+
+        // ==================== LOGOUT ====================
+        window.logout = async function() {
+            try {
+                await auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        };
+
+        // ==================== INIT ====================
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('👤 User logged in:', user.email);
+                loadCart();
+            } else {
+                console.log('👤 User not logged in');
+                document.getElementById('cartItems').innerHTML = `
+                    <div class="empty-cart">
+                        <h2>🛒 Please Login</h2>
+                        <p>Login to view your cart items.</p>
+                        <a href="login.html" class="shop-now-btn">Login</a>
+                    </div>
+                `;
+                document.getElementById('cartSummary').style.display = 'none';
+            }
+        });
+
+        console.log('🛒 Cart page loaded!');
+    </script>
+</body>
+</html>
