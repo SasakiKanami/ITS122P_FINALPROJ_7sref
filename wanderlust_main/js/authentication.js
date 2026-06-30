@@ -165,6 +165,13 @@ if (loginForm) {
 
             sessionStorage.setItem("isLoggedIn", "true");
             sessionStorage.setItem("currentUser", userData?.username || email);
+
+    await fetch('../php/log_login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: userData?.username || email })
+    });
+
             alert("Login successful! Welcome back!");
             window.location.href = "shop.html";
 
@@ -197,6 +204,7 @@ const logoutBtn = document.querySelector("#logout-btn");
 
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
+        await fetch('../php/log_logout.php', { method: 'POST' });
         await signOut(auth);
         window.location.replace("login.html");
     });
