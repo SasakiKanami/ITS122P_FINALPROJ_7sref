@@ -459,6 +459,7 @@ table .badge-status {
     color: #721c24;
 }
 
+
 .badge-status.pending {
     background: #fff3cd;
     color: #856404;
