@@ -359,8 +359,13 @@
 
                     productCards.forEach(card => {
                         const productCategory = card.dataset.category || '';
-                        
-                        if (category === 'All' || productCategory === category) {
+                        const isOtherCategory = productCategory !== 'Bags' && productCategory !== 'Accessories';
+
+                        const matches = category === 'All'
+                            || productCategory === category
+                            || (category === 'Others' && isOtherCategory);
+
+                        if (matches) {
                             card.style.display = 'block';
                             visibleCount++;
                         } else {
