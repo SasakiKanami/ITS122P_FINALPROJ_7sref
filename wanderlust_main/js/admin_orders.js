@@ -9,6 +9,66 @@ onAdminStateChanged((user, userData) => {
     loadOrders();
 });
 
+document.getElementById('exportXmlBtn')?.addEventListener('click', () => {
+    exportOrdersToXml(allOrders);
+});
+
+// Escape special characters so values are safe inside XML
+function escapeXml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+}
+
+// Build an XML document from the orders array and trigger a download
+function exportOrdersToXml(orders) {
+    if (!orders || orders.length === 0) {
+        alert('No orders to export.');
+        return;
+    }
+
+    const ordersXml = orders.map(order => {
+        const orderId = order.id;
+        const createdAtStr = order.createdAt ? new Date(order.createdAt.toDate()).toISOString() : '';
+
+        const itemsXml = (order.items || []).map(item => `
+            <item>
+                <productId>${escapeXml(item.productId)}</productId>
+                <name>${escapeXml(item.name)}</name>
+                <quantity>${escapeXml(item.quantity)}</quantity>
+                <price>${escapeXml(item.price)}</price>
+            </item>`).join('');
+
+        return `
+    <order>
+        <orderId>${escapeXml(orderId)}</orderId>
+        <customerName>${escapeXml(order.customerName || 'Guest')}</customerName>
+        <items>${itemsXml}
+        </items>
+        <total>${escapeXml(order.total || 0)}</total>
+        <status>${escapeXml(order.status || '')}</status>
+        <createdAt>${escapeXml(createdAtStr)}</createdAt>
+        <paymentMethod>${escapeXml(order.paymentMethod || '')}</paymentMethod>
+        <paymentProof>${escapeXml(order.paymentProof || '')}</paymentProof>
+    </order>`;
+    }).join('');
+
+    const xmlString = `<?xml version="1.0" encoding="UTF-8"?>\n<orders>${ordersXml}\n</orders>`;
+
+    const blob = new Blob([xmlString], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orders_export_${new Date().toISOString().slice(0, 10)}.xml`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 // Load orders with real-time updates
 function loadOrders() {
     const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
