@@ -198,7 +198,7 @@ const logoutBtn = document.querySelector("#logout-btn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
         await signOut(auth);
-        window.location.href = "login.html";
+        window.location.replace("login.html");
     });
 }
 
